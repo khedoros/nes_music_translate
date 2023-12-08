@@ -1,0 +1,38 @@
+Turn off DMC
+Turn on Noise, Triangle, Square 1+2
+sq1
+4000
+4001
+4002
+4003
+
+sq2
+4004
+4005
+4006
+4007
+
+tri
+4008
+400a
+400b
+
+noise
+400c
+400e
+400f
+
+
+4011 (always 0, so omit)
+4015 (always 0xf, so omit)
+4017 (always 0xff, so omit)
+
+5-step sequence
+Step	APU Cycles	Env+Triangle linear counter	Length Counters+sweep
+         (NTSC)		(quarter frame, ~192Hz)		(half frame, ~96Hz)
+1	3728.5			Clock
+2	7456.5			Clock			Clock
+3	11185.5			Clock
+4	14914.5
+5	18640.5			Clock			Clock
+
