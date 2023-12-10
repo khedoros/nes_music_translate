@@ -36,3 +36,6 @@ Step	APU Cycles	Env+Triangle linear counter	Length Counters+sweep
 4	14914.5
 5	18640.5			Clock			Clock
 
+4 bits for register, 8 bits for data, 20 bits for timestamp?
+RRRRDDDDDDDDTTTTTTTTTTTTTTTT
+At 8000 divisions per second, we'd get 131 seconds of time with a 20-bit timestamp
