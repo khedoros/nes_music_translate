@@ -24,8 +24,10 @@ std::set<float> periods;
 int main(int argc, char* argv[]) {
     std::vector<event_t> audioEvents;
     std::ifstream in;
-    if(argc == 2) {
+    std::ofstream out;
+    if(argc == 3) {
         in.open(argv[1]);
+        out.open(argv[2]);
     }
     else {
         std::cout<<"Provide a filename to open\n";
@@ -142,9 +144,9 @@ int main(int argc, char* argv[]) {
                 assert(ts < 1024*1024);
                 ts |= (static_cast<uint32_t>(a.reg % 16)<<28);
                 ts |= (static_cast<uint32_t>(a.data)<<20);
-                //std::cout<<std::dec<<ts<<", ";
+                out<<std::dec<<ts<<", ";
                 count++;
-                if(count % 8 == 0) std::cout<<'\n';
+                if(count % 8 == 0) out<<'\n';
             }
         }
     }
