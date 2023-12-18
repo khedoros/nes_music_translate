@@ -1,4 +1,9 @@
 #NES Music Playback on Arduino
 
+So, I was at an electronics store the other day and saw a cute Arduino kit for $15. Basically the breadboard, some LEDs, resistors, push buttons, some IR stuff, and wires. I bought it and did a bunch of the "shifting RGB LED", "push the button to make the light blink", and such. Then I thought I ought to try something more interesting, tying into some of my past projects. I'd already done PWM with LEDs, so why not step that up to using PWM to simulate PCM output for audio?
 
-https://raw.githubusercontent.com/khedoros/nes_music_translate/master/playZelda/zeldaPlayback.mp4
+I modified an emulator to dump out register writes and matching timestamps, and wrote a program to process those into a 4-bit register, 8-bit value, and 20-bit timestamp, removing redundant writes and information I wasn't planning on supporting from the stream, and outputting a series of a few thousand 32-bit values, each representing an audio event.
+
+Step 2 was to write an Arduino sketch to emulate a subset of the NES audio hardware, interpreting register writes and producing output analogous to what my emulator (and hopefully the NES) would produce for the same inputs. I did this by triggering Timer1 every 512 cycles, or 31,250 times per second, and using Timer3 to split that into 512 cycles into 64 8-cycle slices to represent a 6-bit output value. The main code loop runs at about 200Hz, but is only really tasked with tracking note lengths. The Timer1 interrupt handler generates audio samples by tracking the duty cycles of the audio channels, reading in events from flash, and applying them to the emulation as appropriate.
+
+There's a recording in the playZelda directory. I don't have an audio jack, so the recording was made by holding some wires onto an audio cable plugged into my PC's microphone port. The voltage is too high, so the peaks clip. Manually holding it was imperfect, so some of the quality issues are certainly from that too. But I think that some of the clicks and pops in the stream are simply because interrupts overlap inappropriately. This *is* one of my first embedded projects, and there are still mistakes and bugs.
