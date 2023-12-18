@@ -1,3 +1,4 @@
 #NES Music Playback on Arduino
 
-![](playZelda/zeldaPlayback.mp4)
+
+https://raw.githubusercontent.com/khedoros/nes_music_translate/master/playZelda/zeldaPlayback.mp4
