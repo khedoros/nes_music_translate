@@ -1,4 +1,4 @@
-#NES Music Playback on Arduino
+# NES Music Playback on Arduino
 
 So, I was at an electronics store the other day and saw a cute Arduino kit for $15. Basically the breadboard, some LEDs, resistors, push buttons, some IR stuff, and wires. I bought it and did a bunch of the "shifting RGB LED", "push the button to make the light blink", and such. Then I thought I ought to try something more interesting, tying into some of my past projects. I'd already done PWM with LEDs, so why not step that up to using PWM to simulate PCM output for audio?
 
