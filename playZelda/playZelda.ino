@@ -22,10 +22,10 @@ unsigned long timeStamp = 0;
 uint8_t nextSample = 0;
 
 // Remaining frame ticks to play each of the channels
-uint8_t sq1LenCnt = 0;
-uint8_t sq2LenCnt = 0;
-uint8_t triLenCnt = 0;
-uint8_t noiseLenCnt = 0;
+volatile uint8_t sq1LenCnt = 0;
+volatile uint8_t sq2LenCnt = 0;
+volatile uint8_t triLenCnt = 0;
+volatile uint8_t noiseLenCnt = 0;
 
 // Remaining NES APU ticks until we clock the duty cycles
 int16_t sq1WavelengthCnt = 0;
@@ -58,8 +58,12 @@ uint8_t noiseVol = 0;
 
 // LFSR data for noise generation
 uint16_t noiseLFSR = 1;
-uint8_t noiseType;
-uint8_t noiseSample;
+uint8_t noiseType = 0;
+
+uint8_t noiseSample = 0;
+uint8_t sq1Sample = 0;
+uint8_t sq2Sample = 0;
+uint8_t triSample = 0;
 
 // length-clocking step
 uint8_t step = 0;
@@ -122,8 +126,10 @@ void loop() {
 ISR(TIMER1_OVF_vect) {
   if (nextSample > 0) {
     *audioOut = setHigh;               // Turn on pin, start timer to turn it off
-    TCNT3 = 65535 - (6 * nextSample);  // Leave the pin high for between 8 and 512 cycles, depending on sample
-    TCCR3B = B00000001;                // Start timer 3, clocked at 1x of clock speed
+    if(nextSample < 63) {
+      TCNT3 = 65535 - (8 * nextSample);  // Leave the pin high for between 8 and 512 cycles, depending on sample
+      TCCR3B = B00000001;                // Start timer 3, clocked at 1x of clock speed
+    }
   }
 
   // Reset timer 1 to 64*8 cycles from now (31250Hz repeat rate)
@@ -202,8 +208,9 @@ ISR(TIMER1_OVF_vect) {
       sq1WavelengthCnt += sq1WavelengthReset;
       sq1DutyIdx++;
       if (sq1DutyIdx >= squareDuties) sq1DutyIdx = 0;
+      sq1Sample = ((sq_duty[sq1DutyCycle][sq1DutyIdx] * sq1Vol))<<3;
     }
-    nextSample += ((sq_duty[sq1DutyCycle][sq1DutyIdx] * sq1Vol));
+    nextSample += sq1Sample;
     sq1WavelengthCnt -= apuCyclesPerSample;
   }
 
@@ -214,8 +221,9 @@ ISR(TIMER1_OVF_vect) {
       sq2WavelengthCnt += sq2WavelengthReset;
       sq2DutyIdx++;
       if (sq2DutyIdx >= squareDuties) sq2DutyIdx = 0;
+      sq2Sample = ((sq_duty[sq2DutyCycle][sq2DutyIdx] *sq2Vol))<<3;
     }
-    nextSample += ((sq_duty[sq2DutyCycle][sq2DutyIdx] *sq2Vol));
+    nextSample += sq2Sample;
     sq2WavelengthCnt -= apuCyclesPerSample;
   }
 
@@ -226,8 +234,9 @@ ISR(TIMER1_OVF_vect) {
       triWavelengthCnt += triWavelengthReset;
       triDutyIdx++;
       if (triDutyIdx >= triDuties) triDutyIdx = 0;
+      triSample = tri_duty[triDutyIdx]>>1;
     }
-    //nextSample += tri_duty[triDutyIdx];
+    nextSample += triSample;
     triWavelengthCnt -= apuCyclesPerSample;
   }
 
@@ -243,8 +252,9 @@ ISR(TIMER1_OVF_vect) {
         noiseLFSR <<= 1;
         noiseLFSR |= noiseSample;
         noiseWavelengthCnt += noiseWavelengthReset;
+        noiseSample *= (noiseVol<<3);
     }
-    nextSample += noiseSample * noiseVol;
+    nextSample += noiseSample;
     noiseWavelengthCnt -= apuCyclesPerSample;
   }
 }
